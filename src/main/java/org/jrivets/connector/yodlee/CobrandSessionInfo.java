@@ -7,8 +7,11 @@ package org.jrivets.connector.yodlee;
 
 public class CobrandSessionInfo {
 
-    public class ConversationCredentials {
+    class ConversationCredentials {
         private String sessionToken;
+
+        ConversationCredentials() {
+        }
 
         public String getSessionToken() {
             return sessionToken;
@@ -30,7 +33,7 @@ public class CobrandSessionInfo {
         return applicationId;
     }
 
-    public ConversationCredentials getCobrandConversationCredentials() {
-        return cobrandConversationCredentials;
+    public String getSessionToken() {
+        return cobrandConversationCredentials.getSessionToken();
     }
 }
