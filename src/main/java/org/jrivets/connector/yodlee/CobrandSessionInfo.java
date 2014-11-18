@@ -7,7 +7,7 @@ package org.jrivets.connector.yodlee;
 
 public class CobrandSessionInfo {
 
-    private class ConversationCredentials {
+    public class ConversationCredentials {
         private String sessionToken;
 
         public String getSessionToken() {
