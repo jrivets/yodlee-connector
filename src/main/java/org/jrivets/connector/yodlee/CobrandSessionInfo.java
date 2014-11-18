@@ -13,7 +13,7 @@ public class CobrandSessionInfo {
         ConversationCredentials() {
         }
 
-        public String getSessionToken() {
+        String getSessionToken() {
             return sessionToken;
         }
     }
