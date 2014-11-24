@@ -1,28 +1,21 @@
-package org.jrivets.connector.yodlee;
+package org.jrivets.connector.yodlee.login;
 
 /**
  * @author kbabushkin
  * @since 11/18/14
  */
 
-public class CobrandSessionInfo {
+public class CobrandSession {
 
     class ConversationCredentials {
         private String sessionToken;
-
-        ConversationCredentials() {
-        }
-
-        String getSessionToken() {
-            return sessionToken;
-        }
     }
 
     private String cobrandId;
     private String applicationId;
-    private ConversationCredentials cobrandConversationCredentials;
+    private ConversationCredentials cobrandConversationCredentials = new ConversationCredentials();
 
-    CobrandSessionInfo() {
+    CobrandSession() {
     }
 
     public String getCobrandId() {
@@ -34,6 +27,6 @@ public class CobrandSessionInfo {
     }
 
     public String getSessionToken() {
-        return cobrandConversationCredentials.getSessionToken();
+        return cobrandConversationCredentials.sessionToken;
     }
 }

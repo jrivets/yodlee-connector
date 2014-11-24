@@ -1,6 +1,4 @@
-package org.jrivets.connector.yodlee;
-
-import com.google.gson.annotations.SerializedName;
+package org.jrivets.connector.yodlee.login;
 
 /**
  * @author kbabushkin
@@ -9,13 +7,8 @@ import com.google.gson.annotations.SerializedName;
 
 public class UserCredentials {
 
-    @SerializedName("login")
     private String login;
-
-    @SerializedName("password")
     private String password;
-
-    @SerializedName("cobSessionToken")
     private String cobrandToken;
 
     public UserCredentials(String login, String password, String cobrandToken) {

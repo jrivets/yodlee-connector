@@ -8,23 +8,24 @@ package org.jrivets.connector.yodlee;
 public class ConnectorConfiguration {
 
     private final String hostURL;
-    private final String apiVersion;
 
-    public ConnectorConfiguration(ConnectorConfiguration configuration) {
-        this.hostURL = configuration.hostURL;
-        this.apiVersion = configuration.apiVersion;
+    private final HttpClientConfiguration clientConfiguration;
+
+    public ConnectorConfiguration(String hostURL, HttpClientConfiguration clientConfiguration) {
+        this.hostURL = hostURL;
+        this.clientConfiguration = clientConfiguration;
     }
 
-    public ConnectorConfiguration(String hostURL, String apiVersion) {
+    public ConnectorConfiguration(String hostURL) {
         this.hostURL = hostURL;
-        this.apiVersion = apiVersion;
+        this.clientConfiguration = new HttpClientConfiguration();
     }
 
     public String getHostURL() {
         return hostURL;
     }
 
-    public String getApiVersion() {
-        return apiVersion;
+    public HttpClientConfiguration getClientConfiguration() {
+        return clientConfiguration;
     }
 }
