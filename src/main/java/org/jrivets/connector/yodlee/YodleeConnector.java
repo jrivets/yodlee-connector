@@ -1,56 +1,76 @@
 package org.jrivets.connector.yodlee;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.fluent.Executor;
+import org.apache.http.client.fluent.Request;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.jrivets.connector.util.JsonSerializer;
 import org.jrivets.connector.yodlee.login.CobrandCredentials;
 import org.jrivets.connector.yodlee.login.CobrandSession;
 import org.jrivets.connector.yodlee.login.UserCredentials;
 import org.jrivets.connector.yodlee.login.UserSession;
 import org.jrivets.connector.yodlee.transaction.TransactionSearchRequest;
 import org.jrivets.connector.yodlee.transaction.TransactionSearchResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * @author kbabushkin
  * @since 11/17/14
  */
 
-public final class YodleeConnector {
+public class YodleeConnector {
 
-    private final YodleeHttpClient httpClient;
+    private final static Logger logger = LoggerFactory.getLogger(YodleeConnector.class);
+
+    private final String baseURL;
+    private final HttpClient httpClient;
 
     public YodleeConnector(ConnectorConfiguration configuration) {
-        this.httpClient = new YodleeHttpClient(configuration.getHostURL(), configuration.getClientConfiguration());
+        this.baseURL = configuration.getHostURL();
+        this.httpClient = new HttpClientBuilder()
+                .withConnectionTimeout(configuration.getConnectionTimeout())
+                .withSocketReadTimeout(configuration.getSocketReadTimeout())
+                .withMaxConnections(configuration.getMaxConnections())
+                .build();
     }
 
-    public CobrandSession cobrandLogin(CobrandCredentials cobCredentials) throws YodleeConnectorException {
-        NameValuePair[] bodyParams = new NameValuePair[] {
+    public CobrandSession cobrandLogin(CobrandCredentials cobCredentials) {
+        NameValuePair[] bodyParams = new NameValuePair[]{
                 new BasicNameValuePair("cobrandLogin", cobCredentials.getLogin()),
                 new BasicNameValuePair("cobrandPassword", cobCredentials.getPassword())
         };
 
-        try {
-            return httpClient.post(Constants.COBRAND_LOGIN_PATH, bodyParams, CobrandSession.class);
-        } catch (Exception e) {
-            throw new YodleeConnectorException(e);
-        }
+        return doPost(Constants.COBRAND_LOGIN_PATH, bodyParams, CobrandSession.class);
     }
 
-    public UserSession userLogin(UserCredentials credentials) throws YodleeConnectorException {
-        NameValuePair[] bodyParams = new NameValuePair[] {
+    public UserSession userLogin(UserCredentials credentials) {
+        NameValuePair[] bodyParams = new NameValuePair[]{
                 new BasicNameValuePair("login", credentials.getLogin()),
                 new BasicNameValuePair("password", credentials.getPassword()),
                 new BasicNameValuePair("cobSessionToken", credentials.getCobrandToken())
         };
 
-        try {
-            return httpClient.post(Constants.USER_LOGIN_PATH, bodyParams, UserSession.class);
-        } catch (Exception e) {
-            throw new YodleeConnectorException(e);
-        }
+        return doPost(Constants.USER_LOGIN_PATH, bodyParams, UserSession.class);
     }
 
-    public TransactionSearchResult transactionSearch(TransactionSearchRequest request) throws YodleeConnectorException {
-        NameValuePair[] bodyParams = new NameValuePair[] {
+    public void userLogout(String cobSessionToken, String userSessionToken) {
+        NameValuePair[] bodyParams = new NameValuePair[]{
+                new BasicNameValuePair("cobSessionToken", cobSessionToken),
+                new BasicNameValuePair("userSessionToken", userSessionToken)
+        };
+
+        doPost(Constants.USER_LOGOUT_PATH, bodyParams, null);
+    }
+
+    public TransactionSearchResult transactionSearch(TransactionSearchRequest request) {
+        NameValuePair[] bodyParams = new NameValuePair[]{
                 new BasicNameValuePair("cobSessionToken", request.getCobSessionToken()),
                 new BasicNameValuePair("userSessionToken", request.getUserSessionToken()),
 
@@ -74,10 +94,27 @@ public final class YodleeConnector {
                         String.valueOf(request.isIgnoreUserInput()))
         };
 
+        return doPost(Constants.USER_TRANSACTION_SEARCH_PATH, bodyParams, TransactionSearchResult.class);
+    }
+
+    <T> T doPost(String relativePath, NameValuePair[] bodyParams, Class<T> clazz) {
         try {
-            return httpClient.post(Constants.USER_TRANSACTION_SEARCH_PATH, bodyParams, TransactionSearchResult.class);
+            Request request = Request.Post(buildRequestURL(relativePath)).bodyForm(bodyParams);
+            HttpResponse httpResponse = Executor.newInstance(httpClient).execute(request).returnResponse();
+
+            String bodyString = EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
+            if (clazz == null) {
+                return null;
+            }
+
+            return JsonSerializer.fromJson(bodyString, clazz);
         } catch (Exception e) {
+            logger.trace("Connector problem: ", e);
             throw new YodleeConnectorException(e);
         }
+    }
+
+    private String buildRequestURL(String path) throws URISyntaxException {
+        return new URI(baseURL + path).toString();
     }
 }

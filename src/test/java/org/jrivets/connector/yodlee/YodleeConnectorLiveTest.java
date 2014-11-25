@@ -8,6 +8,7 @@ import org.jrivets.connector.yodlee.transaction.TransactionContainerType;
 import org.jrivets.connector.yodlee.transaction.TransactionSearchRequest;
 import org.jrivets.connector.yodlee.transaction.TransactionSearchResult;
 import org.jrivets.connector.yodlee.transaction.TransactionSplitType;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -35,10 +36,15 @@ public class YodleeConnectorLiveTest {
 
     @BeforeTest
     public void init() throws YodleeConnectorException {
-        connector = new YodleeConnector(new ConnectorConfiguration(BASE_URL, new HttpClientConfiguration(true)));
+        connector = new YodleeConnector(new ConnectorConfiguration(BASE_URL));
 
         cobrandSession = cobrandLogin(COBRAND_LOGIN, COBRAND_PASSWD);
         userSession = userLogin(USER_LOGIN, USER_PASSWD, cobrandSession.getSessionToken());
+    }
+
+    @AfterTest
+    public void tearDown() {
+        connector.userLogout(cobrandSession.getSessionToken(), userSession.getSessionToken());
     }
 
     @Test

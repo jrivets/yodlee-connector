@@ -8,24 +8,43 @@ package org.jrivets.connector.yodlee;
 public class ConnectorConfiguration {
 
     private final String hostURL;
+    
+    private int socketReadTimeout = 10000;
+    
+    private int connectionTimeout = 10000;
+    
+    private int maxConnections = 10;
 
-    private final HttpClientConfiguration clientConfiguration;
-
-    public ConnectorConfiguration(String hostURL, HttpClientConfiguration clientConfiguration) {
+    public ConnectorConfiguration(String hostURL, int socketReadTimeout, int connectionTimeout, int maxConnections) {
         this.hostURL = hostURL;
-        this.clientConfiguration = clientConfiguration;
+        this.socketReadTimeout = socketReadTimeout;
+        this.connectionTimeout = connectionTimeout;
+        this.maxConnections = maxConnections;
     }
 
     public ConnectorConfiguration(String hostURL) {
         this.hostURL = hostURL;
-        this.clientConfiguration = new HttpClientConfiguration();
     }
 
     public String getHostURL() {
         return hostURL;
     }
 
-    public HttpClientConfiguration getClientConfiguration() {
-        return clientConfiguration;
+    public int getSocketReadTimeout() {
+        return socketReadTimeout;
+    }
+
+    public int getConnectionTimeout() {
+        return connectionTimeout;
+    }
+
+    public int getMaxConnections() {
+        return maxConnections;
+    }
+
+    @Override
+    public String toString() {
+        return "{hostURL=" + hostURL + ", socketReadTimeout=" + socketReadTimeout +
+                ", connectionTimeout=" + connectionTimeout + ", maxConnections=" + maxConnections + "}";
     }
 }

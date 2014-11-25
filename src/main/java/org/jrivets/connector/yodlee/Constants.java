@@ -9,6 +9,7 @@ final class Constants {
 
     static final String COBRAND_LOGIN_PATH = "/authenticate/coblogin";
     static final String USER_LOGIN_PATH = "/authenticate/login";
+    static final String USER_LOGOUT_PATH = "/jsonsdk/Login/logout";
 
     static final String USER_TRANSACTION_SEARCH_PATH = "/jsonsdk/TransactionSearchService/executeUserSearchRequest";
     static final String USER_TRANSACTIONS_PATH = "/jsonsdk/TransactionSearchService/getUserTransactions";
